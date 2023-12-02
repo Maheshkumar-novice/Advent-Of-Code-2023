@@ -9,7 +9,6 @@ with open('input.txt', 'r') as f:
         red_max = -1
         blue_max = -1
         green_max = -1
-        game  = sum(int(i) for i in re.findall(r'Game (\d+):', line))
 
         for result in re.findall(r'(\d+) (?=(red|blue|green))', line):
             if result[1] == 'red':

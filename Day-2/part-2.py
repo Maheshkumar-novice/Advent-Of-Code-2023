@@ -1,4 +1,7 @@
 import re
+import time
+
+start = time.time()
 
 total = 0
 with open('input.txt', 'r') as f:
@@ -11,3 +14,8 @@ with open('input.txt', 'r') as f:
         total += red * blue * green
 
     print(total)
+
+end = time.time()
+
+print(end-start)
+# 0.001294851303100586 s

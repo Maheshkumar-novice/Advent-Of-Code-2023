@@ -31,22 +31,17 @@ def fill_adjacent_indices(row, column, adjacent_indices):
     return adjacent_indices
 
 
-stars = {}
-def adjacent_numbers_of_stars(adjacent_indices, array, number):
+def fill_star_number_index_map(adjacent_indices, array, number, map):
     for row, column in adjacent_indices:
         try:
-            if array[row][column] != '.' and not array[row][column].isdigit():
-                if array[row][column] == '*':
-                    if (row, column) in stars:
-                        stars[(row, column)]['is_updated_twice'] = True
-                        stars[(row, column)]['value'] = int(number) * stars[(row, column)]
-                    else:
-                        stars[(row, column)] = {'is_updated_twice': False, 'value': int(number)}
-                    print(stars)
-        except Exception as e:
-            ...
-    return stars
-    
+            if array[row][column] == '*':
+                if (row, column) in map:
+                    map[(row, column)].append(int(number))
+                else:
+                    map[(row, column)] = [int(number)]
+                return
+        except Exception:
+            ...    
 
 
 with open('input.txt', 'r') as f:
@@ -57,6 +52,7 @@ with open('input.txt', 'r') as f:
     total = 0
     number = ''
     adjacent_indices = []
+    map = {}
 
     for row, line in enumerate(array):
         for column, char in enumerate(line):
@@ -64,13 +60,12 @@ with open('input.txt', 'r') as f:
                 number += char
                 fill_adjacent_indices(row, column, adjacent_indices)
             else:
-                adjacent_numbers_of_stars(adjacent_indices, array, number)
+                fill_star_number_index_map(adjacent_indices, array, number, map)
                 number = ''
+                adjacent_indices = []
 
-
-    for key, value in stars.items():
-        if 'is_updated_twice' in value and value['is_updated_twice']:
-            total += value['value']
-            print(value)
+    for key, value in map.items():
+        if len(value) == 2:
+            total += (value[0] * value[-1])
 
     print(total)

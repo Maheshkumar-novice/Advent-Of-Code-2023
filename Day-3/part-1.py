@@ -31,14 +31,13 @@ def fill_adjacent_indices(row, column, adjacent_indices):
     return adjacent_indices
 
 
-def adjacent_indices_have_symbol(adjacent_indices, array):#
+def adjacent_indices_have_symbol(adjacent_indices, array):
     for row, column in adjacent_indices:
         try:
             if array[row][column] != '.' and not array[row][column].isdigit():
-                print(row, column, array[row][column])
                 return True
-        except Exception as e:
-            print(row, column, e)
+        except Exception:
+            ...
     return False
     
 
@@ -56,7 +55,6 @@ with open('input.txt', 'r') as f:
         for column, char in enumerate(line):
             if char.isdigit():
                 number += char
-                print(number)
                 fill_adjacent_indices(row, column, adjacent_indices)
             else:
                 if adjacent_indices_have_symbol(adjacent_indices, array):

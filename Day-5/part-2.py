@@ -44,11 +44,10 @@ class Parser():
 
             self.current_data = list(map(int, re.findall(r'\d+', line)))
             if self.state == 'seeds':
-                itr = iter(self.current_data)
-                for d in itr:
-                    i = d
-                    j = next(itr)
-                    self.seeds += [range(i, i + j + 1)]
+                iterable = iter(self.current_data)
+                for source in iterable:
+                    incr = next(iterable)
+                    self.seeds += [range(source, source + incr + 1)]
             elif self.state == 'seed-to-soil map':
                 self._parse_to_map(self.seed_to_soil_map)
             elif self.state == 'soil-to-fertilizer map':

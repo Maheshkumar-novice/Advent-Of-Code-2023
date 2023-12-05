@@ -2,6 +2,7 @@ import re
 
 class Parser():
     def __init__(self, data):
+        self.state = 'seeds'
         self.next_states = {
             'seeds': 'seed-to-soil map',
             'seed-to-soil map': 'soil-to-fertilizer map',
@@ -13,7 +14,6 @@ class Parser():
         }
 
         self.data = data
-        self.state = 'seeds'
 
         self.seeds = []
         self.soil = []
@@ -35,9 +35,8 @@ class Parser():
     def move_state(self):
         self.state = self.next_states[self.state]
 
-    def parse(self):
-        for idx, line in enumerate(self.data):
-            # print(f'Parsing line: {idx + 1}, {line}')
+    def parse_location(self):
+        for line in self.data:
             if line == '':
                 self.move_state()
 
@@ -45,157 +44,50 @@ class Parser():
             if self.state == 'seeds':
                 self.seeds = self.current_data
             elif self.state == 'seed-to-soil map':
-                self._parse_seed_to_soil_map()
+                self._parse_to_map(self.seed_to_soil_map)
             elif self.state == 'soil-to-fertilizer map':
-                self._parse_soil_to_fertilizer_map()
+                self._parse_to_map(self.soil_to_fertilizer_map)
             elif self.state == 'fertilizer-to-water map':
-                self._parse_fertilizer_to_water_map()
+                self._parse_to_map(self.fertilizer_to_water_map)
             elif self.state == 'water-to-light map':
-                self._parse_water_to_light_map()
+                self._parse_to_map(self.water_to_light_map)
             elif self.state == 'light-to-temperature map':
-                self._parse_light_to_temperature_map()
+                self._parse_to_map(self.light_to_temperature_map)
             elif self.state == 'temperature-to-humidity map':
-                self._parse_temperature_to_humidity_map()
+                self._parse_to_map(self.temperature_to_humidity_map)
             elif self.state == 'humidity-to-location map':
-                self._parse_humidity_to_location_map()
+                self._parse_to_map(self.humidity_to_location_map)
 
-        print(self.seeds, self.seed_to_soil_map)
-        for i in self.seeds:
-            flag = False
-            for key in self.seed_to_soil_map.keys():
-                if i >= key[0] and i <= key[1]:
-                    flag = True
-                    self.soil.append(abs(i - key[0]) + self.seed_to_soil_map[key])
-            if not flag:
-                self.soil.append(i) 
+        self._process_map_data(self.seed_to_soil_map, self.seeds, self.soil) 
+        self._process_map_data(self.soil_to_fertilizer_map, self.soil, self.fertilizer) 
+        self._process_map_data(self.fertilizer_to_water_map, self.fertilizer, self.water) 
+        self._process_map_data(self.water_to_light_map, self.water, self.light) 
+        self._process_map_data(self.light_to_temperature_map, self.light, self.temperature) 
+        self._process_map_data(self.temperature_to_humidity_map, self.temperature, self.humidity) 
+        self._process_map_data(self.humidity_to_location_map, self.humidity, self.location) 
 
-        print(self.soil, self.soil_to_fertilizer_map)
-        for i in self.soil:
-            flag = False
-            for key in self.soil_to_fertilizer_map.keys():
-                if i >= key[0] and i <= key[1]:
-                    flag = True
-                    self.fertilizer.append(abs(i - key[0]) + self.soil_to_fertilizer_map[key])
-            if not flag:
-                self.fertilizer.append(i) 
-
-        print(self.fertilizer, self.fertilizer_to_water_map)
-        for i in self.fertilizer:
-            flag = False
-            for key in self.fertilizer_to_water_map.keys():
-                if i >= key[0] and i <= key[1]:
-                    flag = True
-                    self.water.append(abs(i - key[0]) + self.fertilizer_to_water_map[key])
-            if not flag:
-                self.water.append(i) 
-
-        print(self.water, self.water_to_light_map)
-        for i in self.water:
-            flag = False
-            for key in self.water_to_light_map.keys():
-                if i >= key[0] and i <= key[1]:
-                    flag = True
-                    self.light.append(abs(i - key[0]) + self.water_to_light_map[key])
-            if not flag:
-                self.light.append(i) 
-
-        print(self.light, self.light_to_temperature_map)
-        for i in self.light:
-            flag = False
-            for key in self.light_to_temperature_map.keys():
-                if i >= key[0] and i <= key[1]:
-                    flag = True
-                    self.temperature.append(abs(i - key[0]) +  self.light_to_temperature_map[key])
-            if not flag:
-                self.temperature.append(i) 
-
-        print(self.temperature, self.temperature_to_humidity_map)
-        for i in self.temperature:
-            flag = False
-            for key in self.temperature_to_humidity_map.keys():
-                if i >= key[0] and i <= key[1]:
-                    flag = True
-                    self.humidity.append(abs(i - key[0]) +  self.temperature_to_humidity_map[key])
-            if not flag:
-                self.humidity.append(i) 
-
-        print(self.humidity, self.humidity_to_location_map)
-        for i in self.humidity:
-            flag = False
-            for key in self.humidity_to_location_map.keys():
-                if i >= key[0] and i <= key[1]:
-                    flag = True
-                    self.location.append(abs(i - key[0]) + self.humidity_to_location_map[key])
-            if not flag:
-                self.location.append(i) 
-
-        print(self.location)
         print(min(self.location))
 
-    def _parse_seed_to_soil_map(self):
-        if not self.current_data: return
+    def _parse_to_map(self, map):
+        if not self.current_data: 
+            return
 
         dest = self.current_data[0]
         source = self.current_data[1]
         incr = self.current_data[-1]
 
-        self.seed_to_soil_map[(source, source + incr)] = dest
+        map[(source, source + incr)] = dest
 
-    def _parse_soil_to_fertilizer_map(self):
-        if not self.current_data: return
-
-        dest = self.current_data[0]
-        source = self.current_data[1]
-        incr = self.current_data[-1]
-
-        self.soil_to_fertilizer_map[(source, source + incr)] = dest
-
-    def _parse_fertilizer_to_water_map(self):
-        if not self.current_data: return
-
-        dest = self.current_data[0]
-        source = self.current_data[1]
-        incr = self.current_data[-1]
-
-        self.fertilizer_to_water_map[(source, source + incr)] = dest
-
-    def _parse_water_to_light_map(self):
-        if not self.current_data: return
-
-        dest = self.current_data[0]
-        source = self.current_data[1]
-        incr = self.current_data[-1]
-
-        self.water_to_light_map[(source, source + incr)] = dest
-
-    def _parse_light_to_temperature_map(self):
-        if not self.current_data: return
-
-        dest = self.current_data[0]
-        source = self.current_data[1]
-        incr = self.current_data[-1]
-
-        self.light_to_temperature_map[(source, source + incr)] = dest
-
-    def _parse_temperature_to_humidity_map(self):
-        if not self.current_data: return
-
-        dest = self.current_data[0]
-        source = self.current_data[1]
-        incr = self.current_data[-1]
-
-        self.temperature_to_humidity_map[(source, source + incr)] = dest
-
-    def _parse_humidity_to_location_map(self):
-        if not self.current_data: return
-
-        dest = self.current_data[0]
-        source = self.current_data[1]
-        incr = self.current_data[-1]
-
-        self.humidity_to_location_map[(source, source + incr)] = dest
+    def _process_map_data(self, map, source, destination):
+        for i in source:
+            flag = False
+            for key in map.keys():
+                if i >= key[0] and i <= key[1]:
+                    flag = True
+                    destination.append(abs(i - key[0]) + map[key])
+            if not flag:
+                destination.append(i) 
 
 
 with open('input.txt', 'r') as f:
-    file = f.read().splitlines()
-    Parser(file).parse()
+    Parser(f.read().splitlines()).parse_location()

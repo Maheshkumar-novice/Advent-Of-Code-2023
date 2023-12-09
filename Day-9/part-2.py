@@ -1,7 +1,7 @@
 from itertools import pairwise
 
 
-with open('sample.txt', 'r') as f:
+with open('input.txt', 'r') as f:
     total = 0
 
     for line in f.read().splitlines():

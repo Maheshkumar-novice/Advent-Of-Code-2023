@@ -1,38 +1,36 @@
 from itertools import pairwise
 
+
 with open('input.txt', 'r') as f:
     total = 0
+    
     for line in f.read().splitlines():
-        flag = False
-        numbers = line.split()
-        final_values =[int(numbers[0])]
-        while not flag:
-            is_non_zero_found = False
-            final_value = -1
-            next_numbers = []
-            first_flag = True
-            for x, y in pairwise(numbers):
-                x = int(x)
-                y = int(y)
+        loop_cotinue_flag = False
+        numbers = list(map(int, line.split()))
+        start_of_the_sequence_values =[numbers[0]]
 
+        while not loop_cotinue_flag:
+            any_none_zero_value_found = False
+            next_sequence_numbers = []
+
+            for x, y in pairwise(numbers):
                 diff = y - x
 
                 if diff != 0:
-                    is_non_zero_found = True
+                    any_none_zero_value_found = True
 
-                next_numbers.append(diff)
-                
-                if first_flag:
-                    final_value = diff
-                    first_flag = False
+                next_sequence_numbers.append(diff)
             
-            numbers = next_numbers
-            final_values.append(final_value)
-            if not is_non_zero_found:
-                flag = True
+            numbers = next_sequence_numbers
+            start_of_the_sequence_values.append(numbers[0])
+
+            if not any_none_zero_value_found:
+                loop_cotinue_flag = True
+
         result = 0
-        for y in (final_values[::-1]):
+        for y in (start_of_the_sequence_values[::-1]):
             result = y - result
+
         total += result
 
     print(total)

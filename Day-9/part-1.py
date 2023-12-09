@@ -1,12 +1,13 @@
 from itertools import pairwise
 
 
-with open('input.txt', 'r') as f:
+with open('sample.txt', 'r') as f:
     total = 0
 
     for line in f.read().splitlines():
         loop_continue_flag = False
-        numbers = list(map(int, line.split()))
+        numbers = list(map(int, line.split()[::-1]))
+        print(numbers)
         end_of_the_sequence_value = numbers[-1]
 
         while not loop_continue_flag:

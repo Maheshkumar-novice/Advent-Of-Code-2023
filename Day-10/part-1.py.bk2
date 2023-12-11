@@ -1,0 +1,164 @@
+PIPE_MATCH_MAP = {
+    '|': {
+        'top': {'|', '7', 'F'},
+        'bottom': {'L', '7', '|'},
+        'right': {},
+        'left': {}
+    },
+    '-': {
+        'top': {},
+        'bottom': {},
+        'right': {'7', 'J', '-'},
+        'left': {'F', 'L', '-'}
+    },
+    'L': {
+        'top': {'7', 'F', '|'},
+        'bottom': {},
+        'right': {'-', 'J', '7'},
+        'left': {}
+    },
+    'J': {
+        'top': {'|', 'F', '7'},
+        'bottom': {},
+        'right': {},
+        'left': {'-', 'F', 'L'}
+    },
+    '7': {
+        'top': {},
+        'bottom': {'J', '|', 'L'},
+        'right': {},
+        'left': {'-', 'F', 'L'}
+    },
+    'F': {
+        'top': {},
+        'bottom': {'|', 'L', 'J'},
+        'right': {'-', 'J', '7'},
+        'left': {}
+    }
+}
+
+
+def get_val_from(coords, data):
+    print(data[coords[0]][coords[1]])
+
+
+def get_connections(coords, data):
+    r_max = len(data[0])
+    b_max = len(data)
+
+
+    top = (coords[0] - 1, coords[1])
+    bottom = (coords[0] + 1, coords[1])
+    right = (coords[0], coords[1] + 1)
+    left = (coords[0], coords[1] - 1)
+
+
+    if not validate_top(top):
+        top = None
+
+    if not validate_bottom(bottom, b_max):
+        bottom = None
+
+    if not validate_right(right, r_max):
+        right = None
+
+    if not validate_left(left):
+        left = None
+
+    return top, bottom, right, left
+
+def validate_top(top): return top[0] >= 0 and top[1] >= 0
+
+def validate_bottom(bottom, b_max): return bottom[0] >=0 and bottom[1] >= 0 and bottom[0] < b_max
+
+def validate_right(right, r_max): return right[0] >= 0 and right[1] >= 0 and right[1] < r_max
+
+def validate_left(left): return left[0] >= 0 and left[1] >= 0
+
+def has_connection(coords, data, connections=[], count=False):
+    top, bottom, right, left = get_connections(coords, data) if not connections else connections
+    symbol = data[coords[0]][coords[1]]
+    if symbol == '.' and count == False:
+        return None, None, None, None  
+    elif symbol == '.' and count:
+        return False
+    print(coords, symbol, top, bottom, right, left)
+
+    top_r = None
+    if top:
+        top_r = data[top[0]][top[1]] in PIPE_MATCH_MAP[symbol]['top']
+
+    bottom_r = None
+    if bottom:
+        bottom_r = data[bottom[0]][bottom[1]] in PIPE_MATCH_MAP[symbol]['bottom']
+
+    right_r = None
+    if right:
+        right_r = data[right[0]][right[1]] in PIPE_MATCH_MAP[symbol]['right']
+
+    left_r = None
+    if left:
+        left_r = data[left[0]][left[1]] in PIPE_MATCH_MAP[symbol]['left']
+
+   
+    counter = 0
+    print(top_r, bottom_r, right_r, left_r)
+    for i in [top_r, bottom_r, right_r, left_r]:
+        if i:
+            counter += 1
+
+    if count:
+        return counter == 2
+    else:
+        if counter != 2:
+            return None, None, None, None
+        val = []
+        if top_r:
+            val.append(top)
+        if bottom_r:
+            val.append(bottom)
+        if right_r:
+            val.append(right)
+        if left_r:
+            val.append(left)
+        return val
+from collections import deque
+with open('input.txt', 'r') as f:
+    data = f.read().splitlines()
+
+    for idx, i in enumerate(data):
+       data[idx] = list(i)
+    
+    s_index = (24, 93)
+
+    for i in ['|', '-', 'F', '7', 'J', 'L']:
+        data[s_index[0]][s_index[1]] = i
+        r = has_connection(s_index, data, count=True)
+
+        if r:
+            break
+    print(data[24][93])
+
+    queue = deque()
+    queue.append(s_index)
+    visited = {}
+    parent_count = {s_index: 0}
+    while len(queue) != 0:
+        print(queue)
+        pipe = queue.popleft()
+
+        if pipe in visited:
+            continue
+
+        if data[pipe[0]][pipe[1]] == '.':
+            continue
+        
+        connections = get_connections(pipe, data)
+        for i in has_connection(pipe, data, connections=connections):
+            if i and i not in visited:
+                print(pipe, connections)
+                print(i, parent_count[pipe])
+                queue.append(i)
+                parent_count[i] = parent_count[pipe] + 1
+        visited[pipe] = True
+    print(visited, parent_count)

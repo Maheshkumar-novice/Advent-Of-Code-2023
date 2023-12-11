@@ -124,7 +124,18 @@ def has_connection(coords, data, connections=[], count=False):
 
 
 with open('input.txt', 'r') as f:
-    data = f.read().splitlines()
+    import re
+    fc = f.read()
+    rei = re.search(r'S', fc)
+    s_index = rei.span()[0]
+
+    fcl = fc.splitlines()
+    rl = len(fcl[0])
+    cl = len(fcl)
+
+    s_index = (s_index // rl,s_index - ((s_index// rl) * (rl + 1)))
+
+    data = fc.splitlines()
 
     for idx, i in enumerate(data):
        data[idx] = list(i)

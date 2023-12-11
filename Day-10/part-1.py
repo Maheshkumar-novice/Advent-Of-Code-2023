@@ -120,12 +120,21 @@ def has_connection(coords, data, connections=[], count=False):
             val.append(left)
         return val
 with open('input.txt', 'r') as f:
-    data = f.read().splitlines()
+    import re
+    fc = f.read()
+    rei = re.search(r'S', fc)
+    s_index = rei.span()[0]
+
+    fcl = fc.splitlines()
+    rl = len(fcl[0])
+    cl = len(fcl)
+
+    data = fc.splitlines()
 
     for idx, i in enumerate(data):
        data[idx] = list(i)
     
-    s_index = (24, 93)
+    s_index = (s_index // rl,s_index - ((s_index// rl) * (rl + 1)))
 
     for i in ['|', '-', 'F', '7', 'J', 'L']:
         data[s_index[0]][s_index[1]] = i

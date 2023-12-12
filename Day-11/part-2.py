@@ -1,72 +1,43 @@
-import numpy as np
 from itertools import combinations
-import re
+
+import numpy as np
+
+
+def insert_empty_row_marks(data):
+    rows_to_duplicate, empty_row = [], ['.'] * len(data[0])
+
+    for idx, i in enumerate(data):
+        if all(i == '.' for i in i):
+            rows_to_duplicate.append(idx)
+
+    index = 0
+    for i in rows_to_duplicate:
+        data.insert(i + index, ['X'] + empty_row[1:])
+        index += 1
 
 with open('input.txt', 'r') as f:
-    file_content = f.read()
-    data = file_content.splitlines()
-
-    hash_count = len(re.findall(r'#', file_content))
-    combos = list(combinations(range(1, hash_count + 1), r=2))
-
-    rows_to_duplicate = []
-    for idx, i in enumerate(data):
-        data[idx] = list(i)
-
-        if all(i == '.' for i in i):
-            rows_to_duplicate.append((idx, list(i)))
+    data = list(map(list, f.read().splitlines()))
+    insert_empty_row_marks(data)
     
-    index = 0
-    for i, row_value in rows_to_duplicate:
-        data.insert(i + index + 1, ['X'] + row_value[1:])
-        index += 1
-
-   
     data = np.transpose(data).tolist()
-
-    rows_to_duplicate = []
-    for idx, i in enumerate(data):
-        if all(i == '.' for i in i):
-            rows_to_duplicate.append((idx, i))
-
-    index = 0
-    for i, row_value in rows_to_duplicate:
-        data.insert(i + index + 1, ['X'] + row_value[1:])
-        index += 1
+    insert_empty_row_marks(data)
 
     data = np.transpose(data).tolist()
-
-    data_map = {}
-    count = 1
-    
-    temp_idx = -1
-    jdx_row = data[0]
-    for idx, i in enumerate(data):
-        if i[0] == 'X':
-            temp_idx += 9_99_999
-        else:
-            temp_idx += 1
-
+    hash_coords, temp_idx, jdx_row, hash_count = {}, -1, data[0], 0
+    for i in data:
+        temp_idx += 9_99_999 if i[0] == 'X' else 1
         temp_jdx = -1
         for jdx, j in enumerate(i):
-            if jdx_row[jdx] == 'X':
-                temp_jdx += 9_99_999
-            else:
-                temp_jdx += 1
-
+            temp_jdx += 9_99_999 if jdx_row[jdx] == 'X' else 1
+            
             if j == '#':
-                data[idx][jdx] = str(count)
-                data_map[count] = (temp_idx, temp_jdx)
-                count += 1
-        idx += 1
+                hash_coords[hash_count + 1] = (temp_idx, temp_jdx)
+                hash_count += 1
 
     total = 0
-    for c in combos:
-        start, end = c
-        x1, y1 = data_map[start]
-        x2, y2 = data_map[end]
-
-        manhattan = abs(x1 - x2) + abs(y1 - y2)
-        total += manhattan
+    for coords in combinations(range(1, hash_count + 1), r=2):
+        x1, y1 = hash_coords[coords[0]]
+        x2, y2 = hash_coords[coords[1]]
+        total += abs(x1 - x2) + abs(y1 - y2)
 
     print(total)

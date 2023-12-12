@@ -2,7 +2,7 @@ import numpy as np
 from itertools import combinations
 import re
 
-with open('input.txt', 'r') as f:
+with open('sample.txt', 'r') as f:
     file_content = f.read()
     data = file_content.splitlines()
 

@@ -1,23 +1,19 @@
-import re, itertools
+import itertools
+
 
 with open('input.txt', 'r') as f:
     count = 0
     for line in f:
-        i, matchers = line.split()
-        matchers = matchers.split(',')
-        mat = []
-        for g in matchers:
-            mat.append('#' * int(g))
+        chars, numbers = line.split()
+        numbers = list(map(int, numbers.split(',')))
+        matching_condition = ['#' * number for number in numbers]
+        indices = [i for i, j in enumerate(chars) if j == '?']
 
-        for j in itertools.product('#.', repeat=i.count('?')):
-            z = list(i)
-            index = 0
-            for idx, m in enumerate(z):
-                if m == '?':
-                    z[idx] = j[index]
-                    index += 1
-            z = ''.join(z)
-            
-            if re.findall(r'#+', z) == mat:
+        for combo in itertools.combinations(indices, sum(numbers) - chars.count('#')):
+            list_chars = list(chars)
+            for idx in combo:
+                list_chars[idx] = '#'
+
+            if [k for k in ''.join(list_chars).replace('?', '.').split('.') if k] == matching_condition:
                 count += 1
     print(count)

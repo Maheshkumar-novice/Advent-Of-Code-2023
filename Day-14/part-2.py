@@ -19,7 +19,7 @@ def tilt(data):
                 case '.':
                     queue.append(current_thing_index)
                 case '#':
-                    queue.clear()
+                    queue = deque()
         moved_lines.append(moved_line)
     return moved_lines
 
@@ -48,15 +48,16 @@ with open('input.txt', 'r') as f:
         lines = tilt([line[::-1] for line in lines])
         lines = [line[::-1] for line in lines]
 
-        cycle_cache[str(lines)] += 1
+        key = str(lines)
+        cycle_cache[key] += 1
 
-        if cycle_cache[str(lines)] == 2:
+        if cycle_cache[key] == 2:
             repeat_data.append(lines)
 
             if cycle_start == -1:
                 cycle_start = i
 
-        if cycle_cache[str(lines)] == 3:
+        if cycle_cache[key] == 3:
             if cycle_end == -1:
                 cycle_end = i
             break
@@ -64,7 +65,7 @@ with open('input.txt', 'r') as f:
     
     repeat = cycle_end - cycle_start
     last_cycle = repeat_data[divmod(LEN - cycle_start, repeat)[1] - 1]
-    for line in (last_cycle):
+    for line in last_cycle:
         total_load += (line.count('O') * length)
         length -= 1
 

@@ -64,7 +64,7 @@ with open('input.txt', 'r') as f:
         i += 1
     
     repeat = cycle_end - cycle_start
-    last_cycle = repeat_data[divmod(LEN - cycle_start, repeat)[1] - 1]
+    last_cycle = repeat_data[(LEN - cycle_start) % repeat - 1]
     for line in last_cycle:
         total_load += (line.count('O') * length)
         length -= 1

@@ -1,4 +1,5 @@
 from collections import deque
+from functools import cache
 
 with open('input.txt', 'r') as f:
     data = f.read().splitlines()
@@ -11,33 +12,31 @@ with open('input.txt', 'r') as f:
         '/':  {'r': 't', 't': 'r', 'l': 'b', 'b': 'l'}
     }
 
-    def is_valid_position(x: int, y: int) -> bool:
-        return not (x >= row_length or x < 0 or y >= column_length or y < 0)
-    
-    def get_direction_coords(direction: str, position: tuple[int]) -> tuple[int]:
-        match direction:
-            case 'r':
-                return (position[0], position[1] + 1)
-            case 'l':
-                return (position[0], position[1] - 1)
-            case 'b':
-                return (position[0] + 1, position[1])
-            case 't':
-                return (position[0] - 1, position[1])
+    DIRECTION_COORDS_UPDATE_MAP = {
+        'r': (0, 1),
+        'l': (0, -1),
+        'b': (1, 0),
+        't': (-1, 0)
+    }
 
+    @cache
     def get_move_from(direction: str, position: tuple[int]) -> list[str, tuple[int]]:
-        match data[position[0]][position[1]]:
+        x, y = position
+
+        match data[x][y]:
             case '.':
-                return [direction, get_direction_coords(direction, position)]
+                x1, y1 = DIRECTION_COORDS_UPDATE_MAP[direction]
+                return [direction, ((x + x1), (y + y1))]
             case '|' | '-' as symbol:
-                directions = DIRECTION_MAP[symbol][direction]
-                next_moves = []
+                directions, next_moves = DIRECTION_MAP[symbol][direction], []
                 for direction in directions:
-                    next_moves += [direction, get_direction_coords(direction, position)]
+                    x1, y1 = DIRECTION_COORDS_UPDATE_MAP[direction]
+                    next_moves += [direction, ((x + x1), (y + y1))]
                 return next_moves
             case '\\' | '/' as symbol:
                 direction = DIRECTION_MAP[symbol][direction]
-                return [direction, get_direction_coords(direction, position)]
+                x1, y1 = DIRECTION_COORDS_UPDATE_MAP[direction]
+                return [direction, ((x + x1), (y + y1))]
 
     def move_light(direction: str, position: tuple[int]) -> None:
         queue = deque()
@@ -47,7 +46,8 @@ with open('input.txt', 'r') as f:
         while queue:
             direction, position = queue.popleft()
 
-            if (direction, position) in visited or not is_valid_position(*position) :
+            if (direction, position) in visited or \
+               not (0 <= position[0] < row_length and 0 <= position[1] < row_length):
                 continue
 
             match get_move_from(direction, position):
@@ -66,21 +66,15 @@ with open('input.txt', 'r') as f:
         global result
         result = max(result, len(result_set))
 
-    # I chose the default direction while starting from corners.
-    # top edges
+    # Both possibilities of edges automatically covered. i.e. top-right: right, bottom
+    # top & bottom edges
     for i in range(column_length):
         move_light('b', (0, i))
-
-    # bottom edges
-    for i in range(column_length):
         move_light('t', (row_length - 1, i))
 
-    # left edges
+    # right & left edges
     for i in range(row_length):
         move_light('r', (i, 0))
-
-    # right edges
-    for i in range(row_length):
         move_light('l', (i, column_length - 1))
     
     print(result)

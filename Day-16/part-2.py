@@ -2,7 +2,7 @@ from collections import deque
 
 with open('input.txt', 'r') as f:
     data = f.read().splitlines()
-    row_length, column_length, result = len(data), len(data[0]), set()
+    row_length, column_length, result = len(data), len(data[0]), -1
 
     DIRECTION_MAP = {
         '|':  {'t': 't', 'b': 'b', 'r': 'tb', 'l': 'tb'},
@@ -25,7 +25,7 @@ with open('input.txt', 'r') as f:
             case 't':
                 return (position[0] - 1, position[1])
 
-    def get_move_from(direction: str, position: tuple[str]) -> list[str, tuple[int]]:
+    def get_move_from(direction: str, position: tuple[int]) -> list[str, tuple[int]]:
         match data[position[0]][position[1]]:
             case '.':
                 return [direction, get_direction_coords(direction, position)]
@@ -39,7 +39,7 @@ with open('input.txt', 'r') as f:
                 direction = DIRECTION_MAP[symbol][direction]
                 return [direction, get_direction_coords(direction, position)]
 
-    def move_light(direction, position):
+    def move_light(direction: str, position: tuple[int]) -> None:
         queue = deque()
         queue.append((direction, position))
         visited = set()
@@ -51,8 +51,6 @@ with open('input.txt', 'r') as f:
                 continue
 
             match get_move_from(direction, position):
-                case None, None:
-                    continue
                 case d1, p1:
                     queue.append((d1, p1))
                 case d1, p1, d2, p2:
@@ -65,8 +63,8 @@ with open('input.txt', 'r') as f:
         for _, p in visited:
             result_set.add(p)
 
-
-        result.add(len(result_set))
+        global result
+        result = max(result, len(result_set))
 
     # I chose the default direction while starting from corners.
     # top edges
@@ -83,6 +81,6 @@ with open('input.txt', 'r') as f:
 
     # right edges
     for i in range(row_length):
-        move_light('r', (i, column_length - 1))
+        move_light('l', (i, column_length - 1))
     
-    print(max(result))
+    print(result)

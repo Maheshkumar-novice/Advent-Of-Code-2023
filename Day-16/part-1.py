@@ -25,7 +25,7 @@ with open('input.txt', 'r') as f:
             case 't':
                 return (position[0] - 1, position[1])
 
-    def get_move_from(direction: str, position: tuple[str]) -> list[str, tuple[int]]:
+    def get_move_from(direction: str, position: tuple[int]) -> list[str, tuple[int]]:
         match data[position[0]][position[1]]:
             case '.':
                 return [direction, get_direction_coords(direction, position)]
@@ -50,8 +50,6 @@ with open('input.txt', 'r') as f:
             continue
 
         match get_move_from(direction, position):
-            case None, None:
-                continue
             case d1, p1:
                 queue.append((d1, p1))
             case d1, p1, d2, p2:
@@ -60,9 +58,8 @@ with open('input.txt', 'r') as f:
 
         visited.add((direction, position))
 
-
     result_set = set()
-    for d, p in visited:
+    for _, p in visited:
         result_set.add(p)
 
     print(len(result_set))

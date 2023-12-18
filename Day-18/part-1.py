@@ -1,23 +1,23 @@
-from itertools import pairwise
-
 with open('input.txt', 'r') as f:
-    updaters = {
-        'R': (0, 1),
-        'L': (0, -1),
-        'U': (-1, 0),
-        'D': (1, 0)
-    }
-
-    points, point = [], (0, -1)
+    point, previous_point, shoelace, length = [0, -1], [0, 0], 0, 0
+    
     for line in f:
         direction, steps, _ = line.split()
-        updater = updaters[direction]
-        for i in range(int(steps)):
-            point = ((point[0] + updater[0]), (point[1] + updater[1]))
-            points.append(point)
-    
-    shoelace = 0
-    for i, j in pairwise(points):
-        shoelace += ((i[0] * j[1]) - (i[1] * j[0]))
-    
-    print(abs(shoelace) // 2 + len(points) // 2 + 1)
+        steps = int(steps)
+
+        match direction:
+            case 'R':
+                point[1] += steps
+            case 'L':
+                point[1] -= steps
+            case 'U':
+                point[0] -= steps
+            case 'D':
+                point[0] += steps
+        
+        shoelace += ((point[0] * previous_point[1]) - (point[1] * previous_point[0]))
+        
+        previous_point = point.copy()
+        length += steps      
+
+    print(abs(shoelace) // 2 + length // 2  + 1)

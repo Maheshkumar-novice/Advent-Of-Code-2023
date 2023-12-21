@@ -4,7 +4,7 @@ with open('input.txt', 'r') as f:
         line = line.strip()
         if 'S' in line:
             s_index = (idx, line.index('S'))
-        data.append(list(line))
+        data.append(line)
     
     row_length, column_length, next_visits = len(data), len(data[0]), set()
     next_visits.add(s_index)

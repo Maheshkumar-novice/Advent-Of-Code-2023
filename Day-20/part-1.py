@@ -5,7 +5,7 @@ with open('input.txt', 'r') as f:
 
     for line in f:
         module, destinations = line.strip().split(' -> ')
-        
+
         match module[0]:
             case '%':
                 name = module[1:]
@@ -25,11 +25,14 @@ with open('input.txt', 'r') as f:
             
         modules[name] = {'type': type, 'destinations': destinations, 'meta': meta}
 
-    for module_name, info in modules.items():
-        if info['type'] != 'conjunction':
+    for module_name in modules:
+        info = modules[module_name]
+        if info['type'] in ('conjunction', 'flip-flop'):
             for dest in info['destinations']:
-                if modules[dest]['type'] == 'conjunction':
-                    modules[dest]['meta']['state'][module_name] = 0
+                # Mitigate dictionary change error. `rx` not in modules
+                if dest in modules and modules[dest]:
+                    if modules[dest]['type'] == 'conjunction':
+                        modules[dest]['meta']['state'][module_name] = 0
     
     low_count, high_count, queue = 0, 0, deque()
     for _ in range(1000):

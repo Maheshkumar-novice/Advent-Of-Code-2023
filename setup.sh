@@ -6,7 +6,9 @@ if [ $# -eq 0 ]
     exit 1
 fi
 
-dir=Day-$1
+day=$(printf %02d $1)
+
+dir=Day-$day
 
 if [ -d "$dir" ]; then
   echo "$dir already exists."
@@ -21,4 +23,4 @@ touch sample.txt input.txt part-1.py part-2.py
 
 echo "with open('sample.txt', 'r') as f:\n\tprint(f.read())" > part-1.py
 
-curl -H "Connection: close" --cookie "session=$AOC_SESSION_COOKIE" https://adventofcode.com/2023/day/$1/input -o input.txt
+curl -v -H "Connection: close" --cookie "session=$AOC_SESSION_COOKIE" https://adventofcode.com/$2/day/$1/input -o input.txt
